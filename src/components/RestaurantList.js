@@ -9,20 +9,8 @@ function RestaurantList({restaurants, setType, setRadius}) {
     const [currTypeFilter, setCurrTypeFilter] = useState("Restaurants");
     const [currDistFilter, setCurrDistFilter] = useState("All");
     const [currSort, setCurrSort] = useState("None");
-    /*
-    const searchAbleSort = currSort==="Name-Inc"?nameIncSort:currSort==="Name-Dec"?nameDecSort:currSort==="Price-Inc"?
-    priceIncSort:currSort==="Price-Dec"?priceDecSort:currSort==="Rating-Inc"?
-    ratingIncSort:currSort==="Rating-Dec"?ratingDecSort:noSort;
 
-    
-    const nameDecSort = (fE, sE) => sE.name > fE.name?1:-1;
-    const nameIncSort = (fE, sE) => sE.name > fE.name?-1:1;
-    const noSort = (fE, sE) => -1;
-    const priceDecSort = (fE, sE) => fE.price_level===undefined || sE.price_level > fE.price_level?1:-1;
-    const priceIncSort = (fE, sE) => sE.price_level===undefined || sE.price_level > fE.price_level?-1:1;
-    const ratingDecSort = (fE, sE) => fE.rating===undefined || sE.rating > fE.rating?1:-1;
-    const ratingIncSort = (fE, sE) => sE.rating===undefined || sE.rating > fE.rating?-1:1;
-    */
+    const sortFunct = (fE, sE, propName, dec) => fE[propName]===undefined || sE[propName] > fE[propName]?dec*1:dec*-1;
 
     useEffect(() => {
         switch(currTypeFilter) {
@@ -94,30 +82,36 @@ function RestaurantList({restaurants, setType, setRadius}) {
                     <h5>Sort by..</h5>
                 </Col>
                 <Col>
-                    <Button onClick={()=>setCurrSort(currSort==="Name-Inc"?"Name-Dec":currSort==="Name-Dec"?"None":"Name-Inc")}
-                        variant={currSort.substr(0,4)==="Name"?"secondary":"outline-secondary"}
-                    >
-                        Name {currSort==="Name-Inc"?"^":currSort==="Name-Dec"?"v":""}
+                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Na"?"Na-I":currSort.substr(3,1)==="I"?"Na-D":"None")}
+                        variant={currSort.substr(0,2)==="Na"?"secondary":"outline-secondary"}>
+                        Name {currSort==="Na-I"?"^":currSort==="Na-D"?"v":""}
                     </Button>
                 </Col>
                 <Col>
-                    <Button onClick={()=>setCurrSort(currSort==="Price-Inc"?"Price-Dec":currSort==="Price-Dec"?"None":"Price-Inc")}
-                        variant={currSort.substr(0,5)==="Price"?"secondary":"outline-secondary"}
+                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Pr"?"Pr-I":currSort.substr(3,1)==="I"?"Pr-D":"None")}
+                        variant={currSort.substr(0,2)==="Pr"?"secondary":"outline-secondary"}
                     >
-                        Price {currSort==="Price-Inc"?"^":currSort==="Price-Dec"?"v":""}
+                        Price {currSort==="Pr-Inc"?"^":currSort==="Pr-Dec"?"v":""}
                     </Button>
                 </Col>
                 <Col>
-                    <Button onClick={()=>setCurrSort(currSort==="Rating-Inc"?"Rating-Dec":currSort==="Rating-Dec"?"None":"Rating-Inc")}
-                        variant={currSort.substr(0,6)==="Rating"?"secondary":"outline-secondary"}
+                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Ra"?"Ra-I":currSort.substr(3,1)==="I"?"Ra-D":"None")}
+                        variant={currSort.substr(0,2)==="Ra"?"secondary":"outline-secondary"}
                     >
-                        Rating {currSort==="Rating-Inc"?"^":currSort==="Rating-Dec"?"v":""}
+                        Rating {currSort==="Ra-Inc"?"^":currSort==="Ra-Dec"?"v":""}
                     </Button>
                 </Col>
             </Row>
             <Row>
                 <Col>
-                    {restaurants.map(restaurant => <ListItem restaurant={restaurant}></ListItem>)}
+                    {restaurants.sort((fE, sE) => {
+                        if(currSort==="None")
+                            return(-1);
+                        
+                        const propName = currSort.substr(0,2)==="Na"?"name":currSort.substr(0,2)==="Pr"?"price_level":"rating";
+                        const mult = currSort.substr(3,1)==="D"?1:-1;
+                        return(sortFunct(fE, sE, propName, mult));
+                    }).map(restaurant => <ListItem restaurant={restaurant}></ListItem>)}
                 </Col>
             </Row>
         </Col>
