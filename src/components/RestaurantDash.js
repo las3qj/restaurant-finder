@@ -7,12 +7,13 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 
-const WEATHER_KEY = process.env.REACT_APP_WEATHER_api_key;
 const GOOGLE_KEY = process.env.REACT_APP_GOOGLE_api_key;
 
 function RestaurantDash(props){
-    const [search, setSearch] = useState(22903);
+    const [search, setSearch] = useState("119 Washington Avenue");
     const [coord, setCoord] = useState({lat: 38.026, lon: -78.535});
     const [restaurants, setRestaurants] = useState([]);
     const [currTypeFilter, setCurrTypeFilter] = useState("Restaurants");
@@ -26,20 +27,21 @@ function RestaurantDash(props){
     useEffect(() => {
         const getAPI = async (type, radius) => {
             await getCoord().then(resp => {
-                setCoord({lat: resp.coord.lat, lon: resp.coord.lon});
-                return(getRest(resp.coord, type, radius));}
+                if(resp.results.length>0) {
+                    setCoord({lat: resp.results[0].geometry.location.lat, lon: resp.results[0].geometry.location.lng});
+                }
+                return(getRest(type, radius));}
             ).then(resp => setRestaurants(resp.results.sort(currSort==="Name-Inc"?nameIncSort:currSort==="Name-Dec"?nameDecSort:noSort)));
         }
         const getCoord = async () => {
-            const url = new URL("https://api.openweathermap.org/data/2.5/weather");
-            url.searchParams.append("zip", search);
+            const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
+            url.searchParams.append("address", search+" Charlottesville VA");
+            url.searchParams.append("key", GOOGLE_KEY);
 
-            url.searchParams.append("appid", WEATHER_KEY);
-            url.searchParams.append("units", "imperial");
             return fetch(url)
                 .then((resp) => resp.json());
         }
-        const getRest = async (coord, type, radius) => {
+        const getRest = async (type, radius) => {
             const location = coord.lat+","+coord.lon;
             const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
             url.searchParams.append("key", GOOGLE_KEY);
@@ -53,111 +55,8 @@ function RestaurantDash(props){
             url.searchParams.append("type", type);
             url.searchParams.append("opennow", true);
             return fetch(url)
-                .then(resp => resp.json());
-            
-            return ({
-                "html_attributions" : [],
-                "results" : [
-                   {
-                      "geometry" : {
-                         "location" : {
-                            "lat" : -33.870775,
-                            "lng" : 151.199025
-                         }
-                      },
-                      "icon" : "http://maps.gstatic.com/mapfiles/place_api/icons/travel_agent-71.png",
-                      "name" : "Rhythmboat Cruises",
-                      "opening_hours" : {
-                         "open_now" : true
-                      },
-                      "photos" : [
-                         {
-                            "height" : 270,
-                            "html_attributions" : [],
-                            "photo_reference" : "CnRnAAAAF-LjFR1ZV93eawe1cU_3QNMCNmaGkowY7CnOf-kcNmPhNnPEG9W979jOuJJ1sGr75rhD5hqKzjD8vbMbSsRnq_Ni3ZIGfY6hKWmsOf3qHKJInkm4h55lzvLAXJVc-Rr4kI9O1tmIblblUpg2oqoq8RIQRMQJhFsTr5s9haxQ07EQHxoUO0ICubVFGYfJiMUPor1GnIWb5i8",
-                            "width" : 519
-                         }
-                      ],
-                      "place_id" : "ChIJyWEHuEmuEmsRm9hTkapTCrk",
-                      "reference" : "ChIJyWEHuEmuEmsRm9hTkapTCrk",
-                      "types" : [ "travel_agency", "restaurant", "food", "establishment" ],
-                      "vicinity" : "Pyrmont Bay Wharf Darling Dr, Sydney"
-                   },
-                   {
-                      "geometry" : {
-                         "location" : {
-                            "lat" : -33.866891,
-                            "lng" : 151.200814
-                         }
-                      },
-                      "icon" : "http://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
-                      "name" : "Private Charter Sydney Habour Cruise",
-                      "photos" : [
-                         {
-                            "height" : 426,
-                            "html_attributions" : [],
-                            "photo_reference" : "CnRnAAAAL3n0Zu3U6fseyPl8URGKD49aGB2Wka7CKDZfamoGX2ZTLMBYgTUshjr-MXc0_O2BbvlUAZWtQTBHUVZ-5Sxb1-P-VX2Fx0sZF87q-9vUt19VDwQQmAX_mjQe7UWmU5lJGCOXSgxp2fu1b5VR_PF31RIQTKZLfqm8TA1eynnN4M1XShoU8adzJCcOWK0er14h8SqOIDZctvU",
-                            "width" : 640
-                         }
-                      ],
-                      "place_id" : "ChIJqwS6fjiuEmsRJAMiOY9MSms",
-                      "reference" : "ChIJqwS6fjiuEmsRJAMiOY9MSms",
-                      "types" : [ "restaurant", "food", "establishment" ],
-                      "vicinity" : "Australia"
-                   },
-                   {
-                      "geometry" : {
-                         "location" : {
-                            "lat" : -33.870943,
-                            "lng" : 151.190311
-                         }
-                      },
-                      "icon" : "http://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
-                      "name" : "Bucks Party Cruise",
-                      "opening_hours" : {
-                         "open_now" : true
-                      },
-                      "photos" : [
-                         {
-                            "height" : 600,
-                            "html_attributions" : [],
-                            "photo_reference" : "CnRnAAAA48AX5MsHIMiuipON_Lgh97hPiYDFkxx_vnaZQMOcvcQwYN92o33t5RwjRpOue5R47AjfMltntoz71hto40zqo7vFyxhDuuqhAChKGRQ5mdO5jv5CKWlzi182PICiOb37PiBtiFt7lSLe1SedoyrD-xIQD8xqSOaejWejYHCN4Ye2XBoUT3q2IXJQpMkmffJiBNftv8QSwF4",
-                            "width" : 800
-                         }
-                      ],
-                      "place_id" : "ChIJLfySpTOuEmsRsc_JfJtljdc",
-                      "reference" : "ChIJLfySpTOuEmsRsc_JfJtljdc",
-                      "types" : [ "restaurant", "food", "establishment" ],
-                      "vicinity" : "37 Bank St, Pyrmont"
-                   },
-                   {
-                      "geometry" : {
-                         "location" : {
-                            "lat" : -33.867591,
-                            "lng" : 151.201196
-                         }
-                      },
-                      "icon" : "http://maps.gstatic.com/mapfiles/place_api/icons/travel_agent-71.png",
-                      "name" : "Australian Cruise Group",
-                      "opening_hours" : {
-                         "open_now" : true
-                      },
-                      "photos" : [
-                         {
-                            "height" : 242,
-                            "html_attributions" : [],
-                            "photo_reference" : "CnRnAAAABjeoPQ7NUU3pDitV4Vs0BgP1FLhf_iCgStUZUr4ZuNqQnc5k43jbvjKC2hTGM8SrmdJYyOyxRO3D2yutoJwVC4Vp_dzckkjG35L6LfMm5sjrOr6uyOtr2PNCp1xQylx6vhdcpW8yZjBZCvVsjNajLBIQ-z4ttAMIc8EjEZV7LsoFgRoU6OrqxvKCnkJGb9F16W57iIV4LuM",
-                            "width" : 200
-                         }
-                      ],
-                      "place_id" : "ChIJrTLr-GyuEmsRBfy61i59si0",
-                      "reference" : "ChIJrTLr-GyuEmsRBfy61i59si0",
-                      "types" : [ "travel_agency", "restaurant", "food", "establishment" ],
-                      "vicinity" : "32 The Promenade, King Street Wharf 5, Sydney"
-                   }
-                ],
-                "status" : "OK"
-             });
+                .then(resp => resp.json());            
+
         }
         const searchAbleType = currTypeFilter==="Restaurants"?"restaurant":currTypeFilter==="Bars"?"bar":"cafe";
         const searchAbleRadius = currDistFilter==="All"?0:currDistFilter==="1 Mile"?1609:currDistFilter==="5 Miles"?8054:16090;
@@ -166,6 +65,14 @@ function RestaurantDash(props){
     return(
         <div>
             <Container>
+                <Row>
+                <InputGroup size="sm" className="mb-3">
+                    <InputGroup.Prepend>
+                    <InputGroup.Text id="inputGroup-sizing-sm">Cville Address</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl aria-label="Small" value={search} onChange={(e) => setSearch(e.target.value)} aria-describedby="inputGroup-sizing-sm" />
+                </InputGroup>
+                </Row>
                 <Row>
                     <Col>
                         <Dropdown>
