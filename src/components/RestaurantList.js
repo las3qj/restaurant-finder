@@ -81,26 +81,13 @@ function RestaurantList({restaurants, setType, setRadius}) {
                 <Col>
                     <h5>Sort by..</h5>
                 </Col>
-                <Col>
-                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Na"?"Na-I":currSort.substr(3,1)==="I"?"Na-D":"None")}
-                        variant={currSort.substr(0,2)==="Na"?"secondary":"outline-secondary"}>
-                        Name {currSort==="Na-I"?"^":currSort==="Na-D"?"v":""}
-                    </Button>
-                </Col>
-                <Col>
-                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Pr"?"Pr-I":currSort.substr(3,1)==="I"?"Pr-D":"None")}
-                        variant={currSort.substr(0,2)==="Pr"?"secondary":"outline-secondary"}
-                    >
-                        Price {currSort==="Pr-Inc"?"^":currSort==="Pr-Dec"?"v":""}
-                    </Button>
-                </Col>
-                <Col>
-                    <Button onClick={()=>setCurrSort(currSort.substr(0,2)!=="Ra"?"Ra-I":currSort.substr(3,1)==="I"?"Ra-D":"None")}
-                        variant={currSort.substr(0,2)==="Ra"?"secondary":"outline-secondary"}
-                    >
-                        Rating {currSort==="Ra-Inc"?"^":currSort==="Ra-Dec"?"v":""}
-                    </Button>
-                </Col>
+                {["Name","Pricing","Rating"].map((propName) => {
+                    return(
+                        <Col>
+                            <SortingButton propName={propName} currSort={currSort} setCurrSort={setCurrSort}/>
+                        </Col>
+                    )
+                })}
             </Row>
             <Row>
                 <Col>
@@ -116,6 +103,16 @@ function RestaurantList({restaurants, setType, setRadius}) {
             </Row>
         </Col>
     );
+}
+
+function SortingButton({propName, currSort, setCurrSort}) {
+    return(
+        <Button onClick={()=>setCurrSort(currSort.substr(0,2)!==propName.substr(0,2)?propName.substr(0,2)+"-I":
+            currSort.substr(3,1)==="I"?propName.substr(0,2)+"-D":"None")}
+            variant={currSort.substr(0,2)===propName.substr(0,2)?"secondary":"outline-secondary"}>
+            {propName} {currSort===propName.substr(0,2)+"-I"?"^":currSort===propName.substr(0,2)+"-D"?"v":""}
+        </Button>
+    )
 }
 
 export default RestaurantList;
